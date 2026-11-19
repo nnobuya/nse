@@ -1,0 +1,21 @@
+#### calc. param. ###
+# nbet: beta-decay(0:table, 1:wagoner)
+    0
+# neu : neutrino (0:off, 1:on)
+    0
+# n_in: input format; 0: t, rho, temp (time evol), 1: ye, rho, temp (table)
+    0
+# nfreq: frequency of output (nse.dat)
+   20
+
+#### init condition
+# Temperater limit
+  9.00000000E+09
+# Time minimum
+  4.37000000E-01
+# Ye initial      
+  4.90642351E-01
+# Time initial
+  0.00000000E+00
+# dtime initial
+  1.00000000E-04

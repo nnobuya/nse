@@ -1,0 +1,17 @@
+qnse:
+	ofile
+	set_part (mod_part)
+	qscomp   (mod_set)
+	set_init (mod_set)
+	set_rhot
+	npafun
+	ini_set
+	npafun
+	new_raph
+	sstate
+	out_main
+	out_main
+
+# update
+2009.04.09
+2009.05.06
