@@ -319,7 +319,7 @@ contains
        j = no(i)
        k = no(ii)
        ch = adjustl(name(j))
-       write(62,'(1h ,i3,3i4,a6,1pe15.7,2e10.3)') &
+       write(62,'(1x,i3,3i4,a6,1pe15.7,2e10.3)') &
             & i, j, nz(j), na(j), adjustr(ch), x(j), recy(j), rpcy(j)
     end do
 

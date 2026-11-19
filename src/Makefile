@@ -8,46 +8,43 @@
 #                - modified for module build (N.N.)                      #
 # ====================================================================== #
 
-#FC	:= ifort
-FC	:= gfortran
+include config.mk
 
-FCFLAGS	:= -O3 #-check all -warn all
+FCFLAGS ?= -O3
 
-PRG	:= nse
+PRG := ../nse
 
-MAIN	:= $(PRG:%=%.f90)
+MOD := $(patsubst %.f90,%.mod,$(wildcard mod_*.f90))
+OBJ := $(patsubst %.f90,%.o,$(wildcard *.f90))
 
-MODNAME	:= mod_const mod_set mod_wagoner mod_ffn mod_out mod_neu
+.PHONY: all nse clean
+.DELETE_ON_ERROR:
 
-SRCMOD	:= $(MODNAME:%=%.f90)
+all: $(PRG)
 
-MOD	:= $(MODNAME:%=%.mod)
+nse: $(PRG)
 
-OBJMOD	:= $(MODNAME:%=%.o)
+$(PRG): $(OBJ) Makefile config.mk
+	$(FC) $(FCFLAGS) $(LDFLAGS) -o $@ $(OBJ) $(LIB) $(LDLIBS)
 
-SRC	:= $(filter-out $(SRCMAIN) $(SRCMOD), $(wildcard *.f90))
+# Fortran module compilation produces the object and module file together.
+# gfortran leaves an unchanged module file's timestamp intact.
+mod_%.o mod_%.mod: mod_%.f90 config.mk
+	$(FC) $(FCFLAGS) -c -o mod_$*.o $<
+	touch -c mod_$*.mod
 
-OBJ	:= $(SRC:%.f90=%.o)
+%.o: %.f90 config.mk
+	$(FC) $(FCFLAGS) -c -o $@ $<
 
-LIBPRG	:= lib$(PRG).a
+# Module prerequisites follow the USE statements in each source file.
+mod_set.o mod_set.mod mod_neu.o mod_neu.mod func_coul.o: mod_const.mod
+mod_ffn.o mod_ffn.mod mod_out.o mod_out.mod: mod_const.mod mod_set.mod
 
-LIBOBJ	:= $(OBJ:%.o=$(LIBPRG)(%.o))
-
-LIBMOD	:= $(OBJMOD:%.o=$(LIBPRG)(%.o))
-
-#=============================================================================
-
-all:	$(PRG)
-
-$(PRG):	%: %.f90 $(LIBPRG) $(LIBOBJ) $(LIBMOD)
-	$(FC) $(FCFLAGS)  -o $@ $< -L. $(LIBPRG) $(LIB)
-
-$(LIBPRG): $(LIBOBJ)
-
-$(LIBOBJ): $(LIBMOD)
-
-%.o: %.f90
-	$(FC) -c $(FCFLAGS) $<
+eq_nse.o ini_set.o new_raph.o nr_retry.o part_func.o: mod_const.mod mod_set.mod
+neutrino.o: mod_set.mod mod_neu.mod
+ofile.o therm.o: mod_set.mod
+sstate.o: mod_const.mod mod_set.mod mod_wagoner.mod mod_ffn.mod
+nse.o: mod_const.mod mod_set.mod mod_out.mod mod_ffn.mod
 
 clean:
-	rm -f *.o *~ $(LIBPRG) $(MOD) $(NTWK) $(PRG) fort.* *__*.*
+	$(RM) $(PRG) $(OBJ) $(MOD)

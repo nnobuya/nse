@@ -1,0 +1,4 @@
+# Default Fortran compiler for this build.
+ifneq ($(filter default undefined,$(origin FC)),)
+FC := gfortran
+endif
